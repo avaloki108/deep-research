@@ -16,11 +16,13 @@ export class RateLimiter {
     
     if (this.requestTimes.length >= this.maxRequests) {
       const oldestRequest = this.requestTimes[0];
-      const waitTime = this.timeWindow - (now - oldestRequest) + 100; // Add small buffer
-      
-      if (waitTime > 0) {
-        console.log(`⏳ Rate limiting: waiting ${waitTime}ms...`);
-        await new Promise(resolve => setTimeout(resolve, waitTime));
+      if (oldestRequest) {
+        const waitTime = this.timeWindow - (now - oldestRequest) + 100; // Add small buffer
+        
+        if (waitTime > 0) {
+          console.log(`⏳ Rate limiting: waiting ${waitTime}ms...`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+        }
       }
     }
     
