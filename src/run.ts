@@ -8,6 +8,7 @@ import {
   writeFinalReport,
 } from './deep-research';
 import { generateFeedback } from './feedback';
+import { runVulnerabilityResearch } from './vulnerability/vulnerability-research';
 
 // Helper function for consistent logging
 function log(...args: any[]) {
@@ -32,6 +33,51 @@ function askQuestion(query: string): Promise<string> {
 async function run() {
   console.log('Using model: ', getModel().modelId);
 
+  // Get research mode
+  const researchMode = await askQuestion(
+    'Select research mode:\n1. General research (default)\n2. Vulnerability research\nEnter choice (1/2): '
+  );
+
+  if (researchMode === '2') {
+    console.log('\n🔍 Starting vulnerability research mode...\n');
+    
+    const vulnQuery = await askQuestion('What vulnerability/security topic would you like to research? ');
+    
+    const maxTargets = parseInt(
+      await askQuestion('Maximum targets to analyze (default 20): ') || '20'
+    );
+    
+    const focusOnBounties = (await askQuestion('Focus on bug bounty programs? (y/n, default y): ') || 'y').toLowerCase() === 'y';
+    
+    const includeAnalysis = (await askQuestion('Include static code analysis? (y/n, default y): ') || 'y').toLowerCase() === 'y';
+    
+    const minStars = parseInt(
+      await askQuestion('Minimum GitHub stars (default 50): ') || '50'
+    );
+
+    try {
+      const report = await runVulnerabilityResearch(vulnQuery, {
+        maxTargets,
+        focusOnBounties,
+        includeContractAnalysis: includeAnalysis,
+        minStars
+      });
+
+      console.log('\n✅ Vulnerability research completed!');
+      console.log('📄 Report saved to vulnerability-report.md');
+      console.log('\n📋 Report preview:');
+      console.log('='.repeat(50));
+      console.log(report.substring(0, 1000) + '...\n');
+      
+    } catch (error) {
+      console.error('❌ Error during vulnerability research:', error);
+    }
+    
+    rl.close();
+    return;
+  }
+
+  // Original general research mode
   // Get initial query
   const initialQuery = await askQuestion('What would you like to research? ');
 
