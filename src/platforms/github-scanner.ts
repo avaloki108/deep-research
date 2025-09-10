@@ -1,4 +1,5 @@
 import { Octokit } from '@octokit/rest';
+import { RateLimiter, withRetry } from '../utils/helpers';
 
 export interface GitHubRepo {
   owner: string;
@@ -23,11 +24,13 @@ export interface SmartContractFile {
 
 export class GitHubScanner {
   private octokit: Octokit;
+  private rateLimiter: RateLimiter;
 
   constructor(token?: string) {
     this.octokit = new Octokit({
       auth: token || process.env.GITHUB_TOKEN,
     });
+    this.rateLimiter = new RateLimiter(30, 60000); // 30 requests per minute
   }
 
   async findSmartContractRepos(query: string = 'smart contract', options: {
@@ -54,12 +57,16 @@ export class GitHubScanner {
     }
 
     try {
-      const response = await this.octokit.rest.search.repos({
-        q: searchQuery,
-        sort: 'stars',
-        order: 'desc',
-        per_page: Math.min(maxResults, 100)
-      });
+      await this.rateLimiter.waitIfNeeded();
+      
+      const response = await withRetry(() => 
+        this.octokit.rest.search.repos({
+          q: searchQuery,
+          sort: 'stars',
+          order: 'desc',
+          per_page: Math.min(maxResults, 100)
+        })
+      );
 
       const repos: GitHubRepo[] = [];
 

@@ -9,7 +9,8 @@
     "api": "tsx --env-file=.env.local src/api.ts",
     "docker": "tsx src/run.ts",
     "test": "npx tsx src/ai/text-splitter.test.ts && npx tsx src/test/test-analysis.ts",
-    "test:analysis": "npx tsx src/test/test-analysis.ts"
+    "test:analysis": "npx tsx src/test/test-analysis.ts",
+    "demo:vuln": "npx tsx --env-file=.env.local src/test/demo-vulnerability-research.ts"
   },
   "author": "",
   "license": "ISC",

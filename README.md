@@ -177,6 +177,8 @@ The system will then:
 
 Both modes will generate comprehensive markdown reports saved to your working directory.
 
+**📚 For detailed vulnerability research documentation, see [VULNERABILITY_RESEARCH.md](./VULNERABILITY_RESEARCH.md)**
+
 ### Concurrency
 
 If you have a paid version of Firecrawl or a local version, feel free to increase the `ConcurrencyLimit` by setting the `CONCURRENCY_LIMIT` environment variable so it runs faster.
